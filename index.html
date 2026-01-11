@@ -1,0 +1,1563 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Connect - Version 5</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    .font-display {
+      font-family: 'Poppins', sans-serif;
+    }
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .animate-slide-in { animation: slideInUp 0.4s ease-out; }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+    .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .hover-lift {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    .message-bubble {
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    }
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .online-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 12px;
+      height: 12px;
+      background: #10b981;
+      border: 2px solid white;
+      border-radius: 50%;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full overflow-auto gradient-bg"><!-- Landing Page -->
+   <div id="landing-page" class="min-h-full w-full">
+    <nav class="w-full px-6 py-4 flex justify-between items-center">
+     <div class="flex items-center gap-2">
+      <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm"><span class="text-2xl">🎓</span>
+      </div><span class="font-display text-xl font-bold text-white">Campus Connect</span>
+     </div>
+     <div class="flex gap-3"><button onclick="showLogin()" class="px-5 py-2 rounded-xl glass-card text-white font-medium hover:bg-white/15 transition-all"> Login </button> <button onclick="showSignup()" class="px-5 py-2 rounded-xl bg-white text-purple-600 font-semibold hover:bg-purple-50 transition-all"> Sign Up </button>
+     </div>
+    </nav>
+    <div class="w-full px-6 py-12 md:py-20 flex flex-col items-center text-center">
+     <div class="max-w-4xl mx-auto animate-slide-in">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-purple-200 text-sm font-medium mb-6"><span class="w-2 h-2 rounded-full bg-green-400 animate-pulse-slow"></span> <span id="online-count">5</span> students online now
+      </div>
+      <h1 id="app-tagline" class="font-display text-5xl md:text-7xl font-bold text-white leading-tight mb-6">Where <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300">Comrades</span> Connect</h1>
+      <p class="text-xl text-purple-100 mb-10 max-w-2xl mx-auto">Meet university students across Kenya. Chat, match, share posts, and build genuine friendships. Your campus social network starts here. 🚀</p><button onclick="showSignup()" class="px-10 py-4 rounded-2xl bg-white text-purple-600 font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all"> Get Started Free </button>
+     </div>
+     <div class="mt-16 grid grid-cols-3 gap-8 max-w-3xl w-full">
+      <div class="text-center">
+       <div class="font-display text-4xl font-bold text-white">
+        50+
+       </div>
+       <div class="text-purple-200 text-sm">
+        Universities
+       </div>
+      </div>
+      <div class="text-center">
+       <div id="total-users" class="font-display text-4xl font-bold text-white">
+        8
+       </div>
+       <div class="text-purple-200 text-sm">
+        Active Students
+       </div>
+      </div>
+      <div class="text-center">
+       <div id="total-messages" class="font-display text-4xl font-bold text-white">
+        0
+       </div>
+       <div class="text-purple-200 text-sm">
+        Messages Sent
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Login Page -->
+   <div id="login-page" class="min-h-full w-full hidden flex items-center justify-center p-6">
+    <div class="w-full max-w-md">
+     <div class="glass-card rounded-3xl p-8 animate-slide-in">
+      <div class="text-center mb-8">
+       <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-4"><span class="text-4xl">🎓</span>
+       </div>
+       <h2 id="welcome-message" class="font-display text-3xl font-bold text-white mb-2">Welcome Back!</h2>
+       <p class="text-purple-200">Login to continue connecting</p>
+      </div>
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+       <div><label for="login-email" class="block text-sm font-medium text-purple-200 mb-2">Email</label> <input type="email" id="login-email" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+       </div>
+       <div><label for="login-password" class="block text-sm font-medium text-purple-200 mb-2">Password</label> <input type="password" id="login-password" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+       </div><button type="submit" id="login-btn" class="w-full px-6 py-3 rounded-xl bg-white text-purple-600 font-bold hover:bg-purple-50 transition-all"> Login </button>
+      </form>
+      <div class="mt-6 text-center">
+       <p class="text-purple-200 text-sm">Don't have an account? <button onclick="showSignup()" class="text-white font-semibold hover:underline">Sign Up</button></p><button onclick="showLanding()" class="mt-4 text-purple-300 text-sm hover:text-white transition-colors"> ← Back to Home </button>
+      </div>
+     </div>
+    </div>
+   </div><!-- Signup Page -->
+   <div id="signup-page" class="min-h-full w-full hidden flex items-center justify-center p-6">
+    <div class="w-full max-w-2xl">
+     <div class="glass-card rounded-3xl p-8 animate-slide-in">
+      <div class="text-center mb-8">
+       <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center mx-auto mb-4"><span class="text-4xl">✨</span>
+       </div>
+       <h2 class="font-display text-3xl font-bold text-white mb-2">Join Campus Connect</h2>
+       <p class="text-purple-200">Create your profile and start connecting</p>
+      </div>
+      <form id="signup-form" onsubmit="handleSignup(event)" class="space-y-4">
+       <div class="grid md:grid-cols-2 gap-4">
+        <div><label for="signup-name" class="block text-sm font-medium text-purple-200 mb-2">Full Name</label> <input type="text" id="signup-name" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+        </div>
+        <div><label for="signup-email" class="block text-sm font-medium text-purple-200 mb-2">Email</label> <input type="email" id="signup-email" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+        </div>
+       </div>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div><label for="signup-university" class="block text-sm font-medium text-purple-200 mb-2">University</label> <select id="signup-university" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all"> <option value="">Select University</option> <option value="UoN">University of Nairobi</option> <option value="KU">Kenyatta University</option> <option value="JKUAT">JKUAT</option> <option value="Strathmore">Strathmore University</option> <option value="USIU">USIU Africa</option> <option value="MKU">Mt. Kenya University</option> </select>
+        </div>
+        <div><label for="signup-course" class="block text-sm font-medium text-purple-200 mb-2">Course</label> <input type="text" id="signup-course" required placeholder="e.g., Computer Science" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+        </div>
+       </div>
+       <div><label for="signup-year" class="block text-sm font-medium text-purple-200 mb-2">Year of Study</label> <select id="signup-year" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all"> <option value="">Select Year</option> <option value="1st Year">1st Year</option> <option value="2nd Year">2nd Year</option> <option value="3rd Year">3rd Year</option> <option value="4th Year">4th Year</option> <option value="5th Year">5th Year</option> </select>
+       </div>
+       <div><label for="signup-image" class="block text-sm font-medium text-purple-200 mb-2">Profile Picture URL (Optional)</label> <input type="url" id="signup-image" placeholder="https://example.com/your-photo.jpg" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+        <p class="text-purple-300 text-xs mt-1">Enter an image URL or leave blank to use default emoji</p>
+       </div>
+       <div><label for="signup-interests" class="block text-sm font-medium text-purple-200 mb-2">Interests (Optional)</label> <input type="text" id="signup-interests" placeholder="e.g., Tech, Music, Sports" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+        <p class="text-purple-300 text-xs mt-1">Separate with commas</p>
+       </div>
+       <div><label for="signup-bio" class="block text-sm font-medium text-purple-200 mb-2">Bio (Optional)</label> <textarea id="signup-bio" rows="3" placeholder="Tell us about yourself..." class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all resize-none"></textarea>
+       </div>
+       <div><label for="signup-password" class="block text-sm font-medium text-purple-200 mb-2">Password</label> <input type="password" id="signup-password" required minlength="6" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+       </div><button type="submit" id="signup-btn" class="w-full px-6 py-3 rounded-xl bg-white text-purple-600 font-bold hover:bg-purple-50 transition-all"> Create Account </button>
+      </form>
+      <div class="mt-6 text-center">
+       <p class="text-purple-200 text-sm">Already have an account? <button onclick="showLogin()" class="text-white font-semibold hover:underline">Login</button></p><button onclick="showLanding()" class="mt-4 text-purple-300 text-sm hover:text-white transition-colors"> ← Back to Home </button>
+      </div>
+     </div>
+    </div>
+   </div><!-- Dashboard -->
+   <div id="dashboard" class="min-h-full w-full hidden"><!-- Top Navigation -->
+    <nav class="w-full px-6 py-4 glass-card border-b border-white/10 sticky top-0 z-50">
+     <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-2">
+       <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center"><span class="text-2xl">🎓</span>
+       </div><span class="font-display text-xl font-bold text-white hidden sm:block">Campus Connect</span>
+      </div>
+      <div class="flex items-center gap-4"><button onclick="showDashboardView('feed')" class="p-2 rounded-xl text-white hover:bg-white/10 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+        </svg></button> <button onclick="showDashboardView('discover')" class="p-2 rounded-xl text-white hover:bg-white/10 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg></button>
+       <div class="relative"><button onclick="toggleNotifications()" class="p-2 rounded-xl text-white hover:bg-white/10 transition-all relative">
+         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+         </svg><span id="notification-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">0</span> </button>
+        <div id="notifications-panel" class="hidden absolute right-0 mt-2 w-80 glass-card rounded-2xl p-4 shadow-2xl">
+         <h3 class="font-bold text-white mb-3">Notifications</h3>
+         <div id="notifications-list" class="space-y-2 max-h-96 overflow-y-auto scrollbar-thin">
+          <p class="text-purple-200 text-sm text-center py-4">No new notifications</p>
+         </div>
+        </div>
+       </div><button onclick="showDashboardView('profile')" id="user-avatar-btn" class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-xl font-bold text-white overflow-hidden"> 👤 </button>
+      </div>
+     </div>
+    </nav><!-- Dashboard Content -->
+    <div class="w-full max-w-7xl mx-auto px-6 py-6"><!-- Feed View -->
+     <div id="feed-view" class="grid lg:grid-cols-3 gap-6"><!-- Main Feed -->
+      <div class="lg:col-span-2 space-y-6"><!-- Create Post -->
+       <div class="glass-card rounded-2xl p-6">
+        <h3 class="font-bold text-white mb-4">Share Something</h3>
+        <form id="post-form" onsubmit="createPost(event)" class="space-y-4"><textarea id="post-content" rows="3" placeholder="What's on your mind?" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all resize-none"></textarea> <button type="submit" id="post-btn" class="px-6 py-2 rounded-xl bg-white text-purple-600 font-semibold hover:bg-purple-50 transition-all"> Post </button>
+        </form>
+       </div><!-- Posts Feed -->
+       <div id="posts-container" class="space-y-6"><!-- Posts will be rendered here -->
+       </div>
+      </div><!-- Sidebar -->
+      <div class="space-y-6"><!-- User Profile Card -->
+       <div class="glass-card rounded-2xl p-6">
+        <div class="text-center">
+         <div id="sidebar-avatar" class="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-3xl mx-auto mb-4 overflow-hidden relative">
+          👤
+         </div>
+         <h3 id="sidebar-name" class="font-bold text-white text-lg mb-1">User Name</h3>
+         <p id="sidebar-university" class="text-purple-200 text-sm mb-4">University</p><button onclick="showDashboardView('profile')" class="w-full px-4 py-2 rounded-xl glass-card text-white text-sm hover:bg-white/15 transition-all"> View Profile </button>
+        </div>
+       </div><!-- Quick Stats -->
+       <div class="glass-card rounded-2xl p-6">
+        <h3 class="font-bold text-white mb-4">Your Stats</h3>
+        <div class="space-y-3">
+         <div class="flex justify-between items-center"><span class="text-purple-200 text-sm">Posts</span> <span id="user-posts-count" class="font-bold text-white">0</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-purple-200 text-sm">Matches</span> <span id="user-matches-count" class="font-bold text-white">0</span>
+         </div>
+         <div class="flex justify-between items-center"><span class="text-purple-200 text-sm">Messages</span> <span id="user-messages-count" class="font-bold text-white">0</span>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Discover View -->
+     <div id="discover-view" class="hidden">
+      <div class="mb-6">
+       <h2 class="font-display text-3xl font-bold text-white mb-4">Discover Comrades</h2>
+       <div class="flex flex-wrap gap-3"><select id="discover-uni-filter" onchange="filterProfiles()" class="px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-purple-400"> <option value="">All Universities</option> <option value="UoN">University of Nairobi</option> <option value="KU">Kenyatta University</option> <option value="JKUAT">JKUAT</option> <option value="Strathmore">Strathmore</option> <option value="USIU">USIU Africa</option> <option value="MKU">Mt. Kenya University</option> </select>
+       </div>
+      </div>
+      <div id="discover-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"><!-- Profiles will be rendered here -->
+      </div>
+     </div><!-- Messages View -->
+     <div id="messages-view" class="hidden grid lg:grid-cols-3 gap-6"><!-- Conversations List -->
+      <div class="glass-card rounded-2xl p-6">
+       <h3 class="font-bold text-white mb-4">Messages</h3>
+       <div id="conversations-list" class="space-y-2">
+        <p class="text-purple-200 text-sm text-center py-4">No conversations yet</p>
+       </div>
+      </div><!-- Chat Window -->
+      <div class="lg:col-span-2 glass-card rounded-2xl p-6 flex flex-col">
+       <div id="chat-header" class="hidden pb-4 border-b border-white/10 mb-4">
+        <div class="flex items-center gap-3">
+         <div id="chat-avatar" class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-xl overflow-hidden relative">
+          👤
+         </div>
+         <div>
+          <h3 id="chat-name" class="font-bold text-white">Select a conversation</h3>
+          <p id="chat-status" class="text-purple-200 text-sm">Online</p>
+         </div>
+        </div>
+       </div>
+       <div id="chat-messages" class="flex-1 space-y-4 overflow-y-auto scrollbar-thin mb-4 min-h-96">
+        <div class="text-center text-purple-200 py-8">
+         Select a conversation to start chatting
+        </div>
+       </div>
+       <form id="message-form" onsubmit="sendMessage(event)" class="hidden">
+        <div class="flex gap-2"><input type="text" id="message-input" placeholder="Type a message..." required class="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all"> <button type="submit" class="px-6 py-3 rounded-xl bg-white text-purple-600 font-semibold hover:bg-purple-50 transition-all"> Send </button>
+        </div>
+       </form>
+      </div>
+     </div><!-- Profile View -->
+     <div id="profile-view" class="hidden max-w-3xl mx-auto">
+      <div class="glass-card rounded-2xl p-8">
+       <div class="flex flex-col md:flex-row gap-6 items-start mb-8">
+        <div id="profile-avatar" class="w-32 h-32 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-5xl shrink-0 overflow-hidden relative">
+         👤
+        </div>
+        <div class="flex-1">
+         <h2 id="profile-name" class="font-display text-3xl font-bold text-white mb-2">User Name</h2>
+         <p id="profile-university" class="text-purple-200 mb-1">University</p>
+         <p id="profile-course" class="text-purple-300 text-sm mb-4">Course • Year</p><button onclick="toggleEditProfile()" class="px-6 py-2 rounded-xl bg-white text-purple-600 font-semibold hover:bg-purple-50 transition-all"> Edit Profile </button>
+        </div>
+       </div>
+       <div id="profile-display" class="space-y-6">
+        <div>
+         <h3 class="font-bold text-white mb-2">About</h3>
+         <p id="profile-bio" class="text-purple-200">No bio yet</p>
+        </div>
+        <div id="profile-interests-display" class="hidden">
+         <h3 class="font-bold text-white mb-2">Interests</h3>
+         <div id="profile-interests-list" class="flex flex-wrap gap-2"></div>
+        </div>
+       </div>
+       <div id="profile-edit" class="hidden space-y-6">
+        <form id="edit-profile-form" onsubmit="updateProfile(event)" class="space-y-4">
+         <div><label for="edit-name" class="block text-sm font-medium text-purple-200 mb-2">Full Name</label> <input type="text" id="edit-name" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+         </div>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div><label for="edit-university" class="block text-sm font-medium text-purple-200 mb-2">University</label> <select id="edit-university" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all"> <option value="">Select University</option> <option value="UoN">University of Nairobi</option> <option value="KU">Kenyatta University</option> <option value="JKUAT">JKUAT</option> <option value="Strathmore">Strathmore University</option> <option value="USIU">USIU Africa</option> <option value="MKU">Mt. Kenya University</option> </select>
+          </div>
+          <div><label for="edit-course" class="block text-sm font-medium text-purple-200 mb-2">Course</label> <input type="text" id="edit-course" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+          </div>
+         </div>
+         <div><label for="edit-year" class="block text-sm font-medium text-purple-200 mb-2">Year of Study</label> <select id="edit-year" required class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all"> <option value="">Select Year</option> <option value="1st Year">1st Year</option> <option value="2nd Year">2nd Year</option> <option value="3rd Year">3rd Year</option> <option value="4th Year">4th Year</option> <option value="5th Year">5th Year</option> </select>
+         </div>
+         <div><label for="edit-image" class="block text-sm font-medium text-purple-200 mb-2">Profile Picture URL</label> <input type="url" id="edit-image" placeholder="https://example.com/your-photo.jpg" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+          <p class="text-purple-300 text-xs mt-1">Enter an image URL or leave blank to use emoji</p>
+         </div>
+         <div><label for="edit-interests" class="block text-sm font-medium text-purple-200 mb-2">Interests</label> <input type="text" id="edit-interests" placeholder="e.g., Tech, Music, Sports" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all">
+          <p class="text-purple-300 text-xs mt-1">Separate with commas</p>
+         </div>
+         <div><label for="edit-bio" class="block text-sm font-medium text-purple-200 mb-2">Bio</label> <textarea id="edit-bio" rows="3" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 focus:bg-white/15 transition-all resize-none"></textarea>
+         </div>
+         <div class="flex gap-3"><button type="submit" id="update-profile-btn" class="px-6 py-2 rounded-xl bg-white text-purple-600 font-semibold hover:bg-purple-50 transition-all"> Save Changes </button> <button type="button" onclick="toggleEditProfile()" class="px-6 py-2 rounded-xl glass-card text-white font-semibold hover:bg-white/15 transition-all"> Cancel </button>
+         </div>
+        </form>
+       </div>
+       <div class="mt-8 pt-8 border-t border-white/10"><button onclick="logout()" class="px-6 py-2 rounded-xl bg-red-500/20 text-red-300 font-semibold hover:bg-red-500/30 transition-all"> Logout </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Profile Detail Modal -->
+   <div id="profile-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeProfileModal()"></div>
+    <div class="absolute inset-4 md:inset-10 lg:inset-20 overflow-auto">
+     <div id="modal-content" class="w-full max-w-2xl mx-auto rounded-3xl glass-card p-6 md:p-8"><!-- Modal content rendered dynamically -->
+     </div>
+    </div>
+   </div><!-- Toast Container -->
+   <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2"></div>
+  </div>
+  <script>
+    // Mock users data
+    const MOCK_USERS = [
+      {
+        userId: 'mock_1',
+        userName: 'Sarah Kimani',
+        userEmoji: '👩‍💻',
+        userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
+        email: 'sarah.kimani@uon.ac.ke',
+        university: 'UoN',
+        course: 'Computer Science',
+        year: '3rd Year',
+        bio: 'Tech enthusiast 💻 | Coffee addict ☕ | Building the future one line of code at a time',
+        interests: 'Coding, Coffee, Hiking, Photography',
+        online: true
+      },
+      {
+        userId: 'mock_2',
+        userName: 'David Omondi',
+        userEmoji: '⚽',
+        userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+        email: 'david.omondi@ku.ac.ke',
+        university: 'KU',
+        course: 'Business Administration',
+        year: '2nd Year',
+        bio: 'Sports fanatic 🏀 | Entrepreneur in the making 📈 | Living life one goal at a time',
+        interests: 'Football, Basketball, Business, Fitness',
+        online: true
+      },
+      {
+        userId: 'mock_3',
+        userName: 'Grace Wanjiku',
+        userEmoji: '🎨',
+        userImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
+        email: 'grace.wanjiku@strathmore.ac.ke',
+        university: 'Strathmore',
+        course: 'Architecture',
+        year: '4th Year',
+        bio: 'Creative soul 🎨 | Designing spaces that inspire | Art & architecture enthusiast',
+        interests: 'Design, Art, Travel, Photography',
+        online: true
+      },
+      {
+        userId: 'mock_4',
+        userName: 'Brian Mwangi',
+        userEmoji: '🎸',
+        userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
+        email: 'brian.mwangi@jkuat.ac.ke',
+        university: 'JKUAT',
+        course: 'Mechanical Engineering',
+        year: '3rd Year',
+        bio: 'Engineer by day, musician by night 🎸 | Love solving problems & making music',
+        interests: 'Music, Engineering, Gaming, Movies',
+        online: false
+      },
+      {
+        userId: 'mock_5',
+        userName: 'Mercy Achieng',
+        userEmoji: '🌍',
+        userImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400',
+        email: 'mercy.achieng@usiu.ac.ke',
+        university: 'USIU',
+        course: 'International Relations',
+        year: '2nd Year',
+        bio: 'Future diplomat 🌍 | Passionate about global affairs | Making the world a better place',
+        interests: 'Politics, Travel, Languages, Reading',
+        online: true
+      },
+      {
+        userId: 'mock_6',
+        userName: 'Kevin Mutua',
+        userEmoji: '🔬',
+        userImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400',
+        email: 'kevin.mutua@uon.ac.ke',
+        university: 'UoN',
+        course: 'Biochemistry',
+        year: '4th Year',
+        bio: 'Science geek 🔬 | Research enthusiast | Exploring the mysteries of life',
+        interests: 'Science, Research, Reading, Chess',
+        online: false
+      },
+      {
+        userId: 'mock_7',
+        userName: 'Amina Hassan',
+        userEmoji: '📱',
+        userImage: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400',
+        email: 'amina.hassan@strathmore.ac.ke',
+        university: 'Strathmore',
+        course: 'Marketing',
+        year: '3rd Year',
+        bio: 'Marketing maven 📱 | Social media strategist | Creating brands that matter',
+        interests: 'Marketing, Social Media, Fashion, Travel',
+        online: true
+      },
+      {
+        userId: 'mock_8',
+        userName: 'John Kariuki',
+        userEmoji: '📷',
+        userImage: 'https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?w=400',
+        email: 'john.kariuki@mku.ac.ke',
+        university: 'MKU',
+        course: 'Media Studies',
+        year: '2nd Year',
+        bio: 'Photographer 📷 | Storyteller | Capturing moments that matter',
+        interests: 'Photography, Videography, Travel, Art',
+        online: false
+      }
+    ];
+
+    const MOCK_POSTS = [
+      {
+        userId: 'mock_1',
+        userName: 'Sarah Kimani',
+        userEmoji: '👩‍💻',
+        userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
+        content: 'Just finished my final year project on AI! 🎓 Super excited to graduate next month. Anyone else finishing up?',
+        timestamp: new Date(Date.now() - 7200000).toISOString()
+      },
+      {
+        userId: 'mock_2',
+        userName: 'David Omondi',
+        userEmoji: '⚽',
+        userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
+        content: 'Organizing a football match this Saturday at the main campus! Who\'s in? ⚽🔥',
+        timestamp: new Date(Date.now() - 14400000).toISOString()
+      },
+      {
+        userId: 'mock_7',
+        userName: 'Amina Hassan',
+        userEmoji: '📱',
+        userImage: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400',
+        content: 'Looking for students interested in starting a digital marketing club. DM me if you\'re interested! 📱✨',
+        timestamp: new Date(Date.now() - 28800000).toISOString()
+      },
+      {
+        userId: 'mock_3',
+        userName: 'Grace Wanjiku',
+        userEmoji: '🎨',
+        userImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
+        content: 'Architecture exhibition this Friday at the design studio! Come check out our semester projects 🎨🏛️',
+        timestamp: new Date(Date.now() - 43200000).toISOString()
+      }
+    ];
+
+    // State management
+    let currentUser = null;
+    let currentUserProfile = null;
+    let allData = [];
+    let currentChatUser = null;
+    let filteredProfiles = [];
+    let isDataReady = false;
+    let mockDataSeeded = false;
+
+    // Default configuration
+    const defaultConfig = {
+      app_tagline: "Where Comrades Connect",
+      welcome_message: "Welcome Back!",
+      primary_color: "#667eea",
+      secondary_color: "#764ba2",
+      accent_color: "#f093fb",
+      text_color: "#ffffff",
+      surface_color: "#ffffff14",
+      font_family: "Inter",
+      font_size: 16
+    };
+
+    let config = { ...defaultConfig };
+
+    // Get all registered user profiles (both mock and real)
+    function getAllUserProfiles() {
+      return allData.filter(d => d.type === 'user');
+    }
+
+    // Get user profile by ID
+    function getUserProfile(userId) {
+      return allData.find(d => d.type === 'user' && d.userId === userId);
+    }
+
+    // Check if user is online
+    function isUserOnline(userId) {
+      const profile = getUserProfile(userId);
+      return profile && profile.online === true;
+    }
+
+    // Update stats on landing page
+    function updateLandingStats() {
+      const users = getAllUserProfiles();
+      const onlineUsers = users.filter(u => u.online === true).length;
+      const messages = allData.filter(d => d.type === 'message');
+      
+      document.getElementById('online-count').textContent = onlineUsers;
+      document.getElementById('total-users').textContent = users.length + '+';
+      document.getElementById('total-messages').textContent = messages.length + '+';
+    }
+
+    // Seed mock data if database is empty
+    async function seedMockData() {
+      if (mockDataSeeded || !isDataReady) return;
+      
+      const existingUsers = getAllUserProfiles();
+      if (existingUsers.length > 0) {
+        mockDataSeeded = true;
+        return;
+      }
+
+      // Seed mock users
+      for (const mockUser of MOCK_USERS) {
+        const userProfile = {
+          type: 'user',
+          ...mockUser,
+          timestamp: new Date(Date.now() - Math.random() * 86400000 * 30).toISOString()
+        };
+        await window.dataSdk.create(userProfile);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      // Seed mock posts
+      for (const mockPost of MOCK_POSTS) {
+        const post = {
+          type: 'post',
+          ...mockPost
+        };
+        await window.dataSdk.create(post);
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      mockDataSeeded = true;
+    }
+
+    // Navigation
+    function showLanding() {
+      document.getElementById('landing-page').classList.remove('hidden');
+      document.getElementById('login-page').classList.add('hidden');
+      document.getElementById('signup-page').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+      updateLandingStats();
+    }
+
+    function showLogin() {
+      document.getElementById('landing-page').classList.add('hidden');
+      document.getElementById('login-page').classList.remove('hidden');
+      document.getElementById('signup-page').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+    }
+
+    function showSignup() {
+      document.getElementById('landing-page').classList.add('hidden');
+      document.getElementById('login-page').classList.add('hidden');
+      document.getElementById('signup-page').classList.remove('hidden');
+      document.getElementById('dashboard').classList.add('hidden');
+    }
+
+    function showDashboard() {
+      document.getElementById('landing-page').classList.add('hidden');
+      document.getElementById('login-page').classList.add('hidden');
+      document.getElementById('signup-page').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      showDashboardView('feed');
+      updateSidebar();
+    }
+
+    function showDashboardView(view) {
+      document.getElementById('feed-view').classList.add('hidden');
+      document.getElementById('discover-view').classList.add('hidden');
+      document.getElementById('messages-view').classList.add('hidden');
+      document.getElementById('profile-view').classList.add('hidden');
+
+      if (view === 'feed') {
+        document.getElementById('feed-view').classList.remove('hidden');
+        renderPosts();
+      } else if (view === 'discover') {
+        document.getElementById('discover-view').classList.remove('hidden');
+        renderDiscoverProfiles();
+      } else if (view === 'messages') {
+        document.getElementById('messages-view').classList.remove('hidden');
+        renderConversations();
+      } else if (view === 'profile') {
+        document.getElementById('profile-view').classList.remove('hidden');
+        renderUserProfile();
+      }
+    }
+
+    // Auth handlers
+    async function handleLogin(event) {
+      event.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
+
+      const email = document.getElementById('login-email').value.trim();
+      
+      const userProfile = allData.find(d => d.type === 'user' && d.email === email);
+      
+      if (!userProfile) {
+        showToast('Account not found. Please sign up first.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Login';
+        return;
+      }
+
+      currentUser = {
+        id: userProfile.userId,
+        email: userProfile.email,
+        name: userProfile.userName,
+        emoji: userProfile.userEmoji,
+        image: userProfile.userImage,
+        university: userProfile.university,
+        course: userProfile.course,
+        year: userProfile.year,
+        bio: userProfile.bio,
+        interests: userProfile.interests,
+        online: userProfile.online
+      };
+      currentUserProfile = userProfile;
+
+      setTimeout(() => {
+        showDashboard();
+        showToast('Welcome back! 🎉', 'success');
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      }, 500);
+    }
+
+    async function handleSignup(event) {
+      event.preventDefault();
+      
+      if (getAllUserProfiles().length >= 999) {
+        showToast('Maximum user limit reached. Please contact support.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('signup-btn');
+      btn.disabled = true;
+      btn.textContent = 'Creating account...';
+
+      const name = document.getElementById('signup-name').value.trim();
+      const email = document.getElementById('signup-email').value.trim();
+      const university = document.getElementById('signup-university').value;
+      const course = document.getElementById('signup-course').value.trim();
+      const year = document.getElementById('signup-year').value;
+      const image = document.getElementById('signup-image').value.trim();
+      const interests = document.getElementById('signup-interests').value.trim();
+      const bio = document.getElementById('signup-bio').value.trim() || 'New to Campus Connect!';
+
+      const existingUser = allData.find(d => d.type === 'user' && d.email === email);
+      if (existingUser) {
+        showToast('Email already registered. Please login.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+        return;
+      }
+
+      const userId = 'user_' + Date.now();
+      const userEmoji = getRandomEmoji();
+
+      const userProfile = {
+        type: 'user',
+        userId: userId,
+        userName: name,
+        userEmoji: userEmoji,
+        userImage: image || '',
+        email: email,
+        university: university,
+        course: course,
+        year: year,
+        bio: bio,
+        interests: interests,
+        online: true,
+        timestamp: new Date().toISOString()
+      };
+
+      if (isDataReady) {
+        const result = await window.dataSdk.create(userProfile);
+        
+        if (result.isOk) {
+          currentUser = {
+            id: userId,
+            email: email,
+            name: name,
+            emoji: userEmoji,
+            image: image,
+            university: university,
+            course: course,
+            year: year,
+            bio: bio,
+            interests: interests,
+            online: true
+          };
+          
+          showToast('Account created successfully! 🎉', 'success');
+          setTimeout(() => showDashboard(), 500);
+        } else {
+          showToast('Failed to create account. Please try again.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+        }
+      } else {
+        showToast('Please wait for the app to load...', 'info');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      currentUserProfile = null;
+      currentChatUser = null;
+      showLanding();
+      showToast('Logged out successfully', 'info');
+    }
+
+    function getRandomEmoji() {
+      const emojis = ['👨‍💻', '👩‍💻', '🎨', '⚽', '📚', '🎸', '🔬', '📷', '🎯', '🎭', '🎮', '🎯', '🎪', '��', '🎤'];
+      return emojis[Math.floor(Math.random() * emojis.length)];
+    }
+
+    // Post functions
+    async function createPost(event) {
+      event.preventDefault();
+      if (!isDataReady || !currentUser) return;
+
+      const content = document.getElementById('post-content').value.trim();
+      if (!content) return;
+
+      const btn = document.getElementById('post-btn');
+      btn.disabled = true;
+      btn.textContent = 'Posting...';
+
+      const post = {
+        type: 'post',
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmoji: currentUser.emoji,
+        userImage: currentUser.image || '',
+        content: content,
+        timestamp: new Date().toISOString()
+      };
+
+      const result = await window.dataSdk.create(post);
+      
+      if (result.isOk) {
+        document.getElementById('post-content').value = '';
+        showToast('Post shared! 📢', 'success');
+      } else {
+        showToast('Failed to create post. Please try again.', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Post';
+    }
+
+    function renderPosts() {
+      const container = document.getElementById('posts-container');
+      const posts = allData.filter(d => d.type === 'post').sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+      );
+
+      if (posts.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card rounded-2xl p-8 text-center">
+            <p class="text-purple-200">No posts yet. Be the first to share something!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => {
+        const avatarHtml = post.userImage 
+          ? `<img src="${post.userImage}" alt="${post.userName}" class="w-full h-full object-cover rounded-xl" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-xl\\'>${post.userEmoji || '👤'}</span>'">` 
+          : `<span class="text-xl">${post.userEmoji || '👤'}</span>`;
+        
+        return `
+          <div class="glass-card rounded-2xl p-6 hover-lift">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center shrink-0 overflow-hidden">
+                ${avatarHtml}
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h4 class="font-bold text-white">${post.userName}</h4>
+                  <span class="text-purple-300 text-sm">• ${formatTime(post.timestamp)}</span>
+                </div>
+                <p class="text-purple-100 mb-4">${post.content}</p>
+                <div class="flex gap-4">
+                  <button class="text-purple-300 hover:text-pink-400 transition-colors text-sm">
+                    ❤️ Like
+                  </button>
+                  <button class="text-purple-300 hover:text-pink-400 transition-colors text-sm">
+                    💬 Comment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Discover functions
+    function renderDiscoverProfiles() {
+      const grid = document.getElementById('discover-grid');
+      const allProfiles = getAllUserProfiles().filter(p => p.userId !== currentUser?.id);
+      
+      const uniFilter = document.getElementById('discover-uni-filter').value;
+      filteredProfiles = allProfiles.filter(p => !uniFilter || p.university === uniFilter);
+      
+      if (filteredProfiles.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <p class="text-purple-200 text-lg">No profiles found. ${allProfiles.length === 0 ? 'Be the first to sign up!' : 'Try adjusting your filters.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filteredProfiles.map(profile => {
+        const interests = profile.interests ? profile.interests.split(',').map(i => i.trim()).slice(0, 3) : [];
+        const isOnline = profile.online === true;
+        const avatarHtml = profile.userImage 
+          ? `<div class="relative">
+               <img src="${profile.userImage}" alt="${profile.userName}" class="w-full h-48 object-cover rounded-xl" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+               ${isOnline ? '<div class="online-badge"></div>' : ''}
+             </div>
+             <div class="w-full h-48 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 items-center justify-center text-5xl hidden relative">
+               ${profile.userEmoji}
+               ${isOnline ? '<div class="online-badge"></div>' : ''}
+             </div>`
+          : `<div class="w-full h-48 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-5xl relative">
+               ${profile.userEmoji}
+               ${isOnline ? '<div class="online-badge"></div>' : ''}
+             </div>`;
+        
+        return `
+          <div class="glass-card rounded-2xl p-6 hover-lift cursor-pointer" onclick="openProfileModal('${profile.userId}')">
+            ${avatarHtml}
+            <div class="mt-4">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-display text-xl font-bold text-white">${profile.userName}</h3>
+                ${isOnline ? '<span class="text-xs text-green-400">● Online</span>' : ''}
+              </div>
+              <p class="text-purple-300 text-sm mb-1">${profile.university}</p>
+              <p class="text-purple-400 text-sm mb-3">${profile.course} • ${profile.year}</p>
+              <p class="text-purple-200 text-sm mb-4 line-clamp-2">${profile.bio}</p>
+              ${interests.length > 0 ? `
+                <div class="flex flex-wrap gap-2">
+                  ${interests.map(i => `
+                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-purple-200">
+                      ${i}
+                    </span>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterProfiles() {
+      renderDiscoverProfiles();
+    }
+
+    function openProfileModal(userId) {
+      const profile = getUserProfile(userId);
+      if (!profile) return;
+
+      const modal = document.getElementById('profile-modal');
+      const content = document.getElementById('modal-content');
+      
+      const interests = profile.interests ? profile.interests.split(',').map(i => i.trim()) : [];
+      const isOnline = profile.online === true;
+      const avatarHtml = profile.userImage 
+        ? `<div class="relative inline-block">
+             <img src="${profile.userImage}" alt="${profile.userName}" class="w-32 h-32 object-cover rounded-2xl mb-4" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+             ${isOnline ? '<div class="online-badge"></div>' : ''}
+           </div>
+           <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-500 items-center justify-center text-5xl mb-4 hidden relative">
+             ${profile.userEmoji}
+             ${isOnline ? '<div class="online-badge"></div>' : ''}
+           </div>`
+        : `<div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-5xl mb-4 relative">
+             ${profile.userEmoji}
+             ${isOnline ? '<div class="online-badge"></div>' : ''}
+           </div>`;
+
+      content.innerHTML = `
+        <button onclick="closeProfileModal()" class="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+        
+        <div class="flex flex-col items-center text-center mb-6">
+          ${avatarHtml}
+          <div class="flex items-center gap-2 mb-2">
+            <h2 class="font-display text-3xl font-bold text-white">${profile.userName}</h2>
+            ${isOnline ? '<span class="text-sm text-green-400">● Online</span>' : '<span class="text-sm text-gray-400">○ Offline</span>'}
+          </div>
+          <p class="text-purple-300 mb-1">${profile.university}</p>
+          <p class="text-purple-400">${profile.course} • ${profile.year}</p>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="font-bold text-white mb-2">About</h3>
+          <p class="text-purple-200">${profile.bio}</p>
+        </div>
+
+        ${interests.length > 0 ? `
+          <div class="mb-6">
+            <h3 class="font-bold text-white mb-3">Interests</h3>
+            <div class="flex flex-wrap gap-2 justify-center">
+              ${interests.map(i => `
+                <span class="px-4 py-2 rounded-xl text-sm font-medium bg-white/10 text-purple-200">
+                  ${i}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="flex gap-4">
+          <button onclick="sendMatch('${profile.userId}')" class="flex-1 px-6 py-3 rounded-xl bg-white text-purple-600 font-semibold hover:bg-purple-50 transition-all">
+            ⚡ Match
+          </button>
+          <button onclick="startChat('${profile.userId}')" class="flex-1 px-6 py-3 rounded-xl glass-card text-white font-semibold hover:bg-white/15 transition-all">
+            💬 Message
+          </button>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    async function sendMatch(profileId) {
+      if (!currentUser) {
+        showToast('Please login first', 'error');
+        return;
+      }
+
+      const profile = getUserProfile(profileId);
+      if (!profile) return;
+
+      const existingMatch = allData.find(d => 
+        d.type === 'match' && 
+        d.userId === currentUser.id && 
+        d.targetUserId === profileId
+      );
+
+      if (existingMatch) {
+        showToast('Already matched with this person!', 'info');
+        closeProfileModal();
+        return;
+      }
+
+      const match = {
+        type: 'match',
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmoji: currentUser.emoji,
+        userImage: currentUser.image || '',
+        targetUserId: profileId,
+        targetUserName: profile.userName,
+        targetUserImage: profile.userImage || '',
+        timestamp: new Date().toISOString(),
+        read: false
+      };
+
+      if (isDataReady) {
+        const result = await window.dataSdk.create(match);
+        
+        if (result.isOk) {
+          showToast(`✨ Matched with ${profile.userName}! Start chatting now.`, 'success');
+          closeProfileModal();
+        } else {
+          showToast('Failed to send match. Please try again.', 'error');
+        }
+      }
+    }
+
+    function startChat(profileId) {
+      const profile = getUserProfile(profileId);
+      if (!profile) return;
+
+      currentChatUser = {
+        id: profile.userId,
+        name: profile.userName,
+        emoji: profile.userEmoji,
+        image: profile.userImage,
+        university: profile.university,
+        online: profile.online
+      };
+      
+      closeProfileModal();
+      showDashboardView('messages');
+      openChat(currentChatUser);
+    }
+
+    // Messages functions
+    function renderConversations() {
+      const container = document.getElementById('conversations-list');
+      const matches = allData.filter(d => d.type === 'match' && d.userId === currentUser?.id);
+
+      if (matches.length === 0) {
+        container.innerHTML = `
+          <p class="text-purple-200 text-sm text-center py-4">No conversations yet. Send a match to start chatting!</p>
+        `;
+        return;
+      }
+
+      container.innerHTML = matches.map(match => {
+        const profile = getUserProfile(match.targetUserId);
+        if (!profile) return '';
+
+        const isOnline = profile.online === true;
+        const avatarHtml = profile.userImage 
+          ? `<div class="relative">
+               <img src="${profile.userImage}" alt="${profile.userName}" class="w-12 h-12 object-cover rounded-xl" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+               ${isOnline ? '<div class="online-badge"></div>' : ''}
+             </div>
+             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 items-center justify-center text-xl hidden relative">
+               ${profile.userEmoji}
+               ${isOnline ? '<div class="online-badge"></div>' : ''}
+             </div>`
+          : `<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-xl relative">
+               ${profile.userEmoji}
+               ${isOnline ? '<div class="online-badge"></div>' : ''}
+             </div>`;
+
+        return `
+          <div onclick='openChatById("${profile.userId}")' class="p-3 rounded-xl hover:bg-white/10 cursor-pointer transition-all">
+            <div class="flex items-center gap-3">
+              ${avatarHtml}
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-white truncate">${profile.userName}</h4>
+                <p class="text-purple-300 text-sm truncate">${isOnline ? '● Online' : '○ Offline'}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openChatById(userId) {
+      const profile = getUserProfile(userId);
+      if (!profile) return;
+
+      currentChatUser = {
+        id: profile.userId,
+        name: profile.userName,
+        emoji: profile.userEmoji,
+        image: profile.userImage,
+        university: profile.university,
+        online: profile.online
+      };
+      
+      openChat(currentChatUser);
+    }
+
+    function openChat(user) {
+      currentChatUser = user;
+      
+      document.getElementById('chat-header').classList.remove('hidden');
+      document.getElementById('message-form').classList.remove('hidden');
+      
+      const avatar = document.getElementById('chat-avatar');
+      const isOnline = user.online === true;
+      if (user.image) {
+        avatar.innerHTML = `<img src="${user.image}" alt="${user.name}" class="w-full h-full object-cover rounded-xl" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-xl\\'>${user.emoji}</span>'">
+                           ${isOnline ? '<div class="online-badge"></div>' : ''}`;
+      } else {
+        avatar.innerHTML = `<span class="text-xl">${user.emoji}</span>${isOnline ? '<div class="online-badge"></div>' : ''}`;
+      }
+      
+      document.getElementById('chat-name').textContent = user.name;
+      document.getElementById('chat-status').textContent = isOnline ? 'Online' : 'Offline';
+      
+      renderMessages();
+    }
+
+    async function sendMessage(event) {
+      event.preventDefault();
+      if (!currentUser) {
+        showToast('Please login first', 'error');
+        return;
+      }
+      
+      if (!currentChatUser) {
+        showToast('Please select a conversation', 'error');
+        return;
+      }
+
+      const input = document.getElementById('message-input');
+      const content = input.value.trim();
+      if (!content) return;
+
+      const message = {
+        type: 'message',
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmoji: currentUser.emoji,
+        userImage: currentUser.image || '',
+        targetUserId: currentChatUser.id,
+        targetUserName: currentChatUser.name,
+        targetUserImage: currentChatUser.image || '',
+        content: content,
+        timestamp: new Date().toISOString(),
+        read: false
+      };
+
+      input.value = '';
+
+      if (isDataReady) {
+        const result = await window.dataSdk.create(message);
+        
+        if (!result.isOk) {
+          showToast('Failed to send message. Please try again.', 'error');
+          input.value = content;
+        }
+      }
+    }
+
+    function renderMessages() {
+      const container = document.getElementById('chat-messages');
+      if (!currentChatUser || !currentUser) return;
+
+      const messages = allData.filter(d => 
+        d.type === 'message' && 
+        ((d.userId === currentUser.id && d.targetUserId === currentChatUser.id) ||
+         (d.userId === currentChatUser.id && d.targetUserId === currentUser.id))
+      ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+      if (messages.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-purple-200 py-8">
+            No messages yet. Start the conversation!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = messages.map(msg => {
+        const isOwn = msg.userId === currentUser.id;
+        return `
+          <div class="flex ${isOwn ? 'justify-end' : 'justify-start'}">
+            <div class="message-bubble ${isOwn ? 'bg-white text-purple-600' : 'bg-white/10 text-white'} px-4 py-2 rounded-2xl">
+              <p class="text-sm">${msg.content}</p>
+              <span class="text-xs opacity-60">${formatTime(msg.timestamp)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Profile functions
+    function renderUserProfile() {
+      if (!currentUser) return;
+
+      const avatar = document.getElementById('profile-avatar');
+      const isOnline = currentUser.online === true;
+      if (currentUser.image) {
+        avatar.innerHTML = `<img src="${currentUser.image}" alt="${currentUser.name}" class="w-full h-full object-cover rounded-2xl" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-5xl\\'>${currentUser.emoji}</span>'">
+                           ${isOnline ? '<div class="online-badge"></div>' : ''}`;
+      } else {
+        avatar.innerHTML = `<span class="text-5xl">${currentUser.emoji}</span>${isOnline ? '<div class="online-badge"></div>' : ''}`;
+      }
+
+      document.getElementById('profile-name').textContent = currentUser.name;
+      document.getElementById('profile-university').textContent = currentUser.university;
+      document.getElementById('profile-course').textContent = `${currentUser.course} • ${currentUser.year}`;
+      document.getElementById('profile-bio').textContent = currentUser.bio;
+
+      if (currentUser.interests) {
+        const interests = currentUser.interests.split(',').map(i => i.trim()).filter(i => i);
+        if (interests.length > 0) {
+          document.getElementById('profile-interests-display').classList.remove('hidden');
+          document.getElementById('profile-interests-list').innerHTML = interests.map(i => `
+            <span class="px-4 py-2 rounded-xl text-sm font-medium bg-white/10 text-purple-200">${i}</span>
+          `).join('');
+        } else {
+          document.getElementById('profile-interests-display').classList.add('hidden');
+        }
+      } else {
+        document.getElementById('profile-interests-display').classList.add('hidden');
+      }
+    }
+
+    function toggleEditProfile() {
+      const display = document.getElementById('profile-display');
+      const edit = document.getElementById('profile-edit');
+      
+      if (display.classList.contains('hidden')) {
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+      } else {
+        display.classList.add('hidden');
+        edit.classList.remove('hidden');
+        
+        document.getElementById('edit-name').value = currentUser.name;
+        document.getElementById('edit-university').value = currentUser.university;
+        document.getElementById('edit-course').value = currentUser.course;
+        document.getElementById('edit-year').value = currentUser.year;
+        document.getElementById('edit-image').value = currentUser.image || '';
+        document.getElementById('edit-interests').value = currentUser.interests || '';
+        document.getElementById('edit-bio').value = currentUser.bio;
+      }
+    }
+
+    async function updateProfile(event) {
+      event.preventDefault();
+      
+      if (!currentUserProfile || !isDataReady) {
+        showToast('Unable to update profile. Please try again.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('update-profile-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const name = document.getElementById('edit-name').value.trim();
+      const university = document.getElementById('edit-university').value;
+      const course = document.getElementById('edit-course').value.trim();
+      const year = document.getElementById('edit-year').value;
+      const image = document.getElementById('edit-image').value.trim();
+      const interests = document.getElementById('edit-interests').value.trim();
+      const bio = document.getElementById('edit-bio').value.trim();
+
+      const updatedProfile = {
+        ...currentUserProfile,
+        userName: name,
+        university: university,
+        course: course,
+        year: year,
+        userImage: image,
+        interests: interests,
+        bio: bio
+      };
+
+      const result = await window.dataSdk.update(updatedProfile);
+      
+      if (result.isOk) {
+        currentUser.name = name;
+        currentUser.university = university;
+        currentUser.course = course;
+        currentUser.year = year;
+        currentUser.image = image;
+        currentUser.interests = interests;
+        currentUser.bio = bio;
+        
+        renderUserProfile();
+        toggleEditProfile();
+        updateSidebar();
+        showToast('Profile updated successfully! 🎉', 'success');
+      } else {
+        showToast('Failed to update profile. Please try again.', 'error');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+    }
+
+    // Notifications
+    function toggleNotifications() {
+      const panel = document.getElementById('notifications-panel');
+      panel.classList.toggle('hidden');
+      
+      if (!panel.classList.contains('hidden')) {
+        renderNotifications();
+      }
+    }
+
+    function renderNotifications() {
+      const container = document.getElementById('notifications-list');
+      const notifications = allData.filter(d => 
+        (d.type === 'match' || d.type === 'message') && 
+        d.targetUserId === currentUser?.id && 
+        !d.read
+      ).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      if (notifications.length === 0) {
+        container.innerHTML = '<p class="text-purple-200 text-sm text-center py-4">No new notifications</p>';
+        document.getElementById('notification-badge').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('notification-badge').textContent = notifications.length;
+      document.getElementById('notification-badge').classList.remove('hidden');
+
+      container.innerHTML = notifications.map(notif => `
+        <div class="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all">
+          <p class="text-white text-sm">
+            ${notif.type === 'match' ? '⚡' : '💬'} 
+            <strong>${notif.userName}</strong> 
+            ${notif.type === 'match' ? 'sent you a match!' : 'sent you a message'}
+          </p>
+          <span class="text-purple-300 text-xs">${formatTime(notif.timestamp)}</span>
+        </div>
+      `).join('');
+    }
+
+    function updateSidebar() {
+      if (!currentUser) return;
+
+      const sidebarAvatar = document.getElementById('sidebar-avatar');
+      const isOnline = currentUser.online === true;
+      if (currentUser.image) {
+        sidebarAvatar.innerHTML = `<img src="${currentUser.image}" alt="${currentUser.name}" class="w-full h-full object-cover rounded-2xl" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-3xl\\'>${currentUser.emoji}</span>'">
+                                   ${isOnline ? '<div class="online-badge"></div>' : ''}`;
+      } else {
+        sidebarAvatar.innerHTML = `<span class="text-3xl">${currentUser.emoji}</span>${isOnline ? '<div class="online-badge"></div>' : ''}`;
+      }
+
+      document.getElementById('sidebar-name').textContent = currentUser.name;
+      document.getElementById('sidebar-university').textContent = currentUser.university;
+
+      const userPosts = allData.filter(d => d.type === 'post' && d.userId === currentUser.id).length;
+      const userMatches = allData.filter(d => d.type === 'match' && d.userId === currentUser.id).length;
+      const userMessages = allData.filter(d => d.type === 'message' && d.userId === currentUser.id).length;
+
+      document.getElementById('user-posts-count').textContent = userPosts;
+      document.getElementById('user-matches-count').textContent = userMatches;
+      document.getElementById('user-messages-count').textContent = userMessages;
+
+      const userAvatarBtn = document.getElementById('user-avatar-btn');
+      if (currentUser.image) {
+        userAvatarBtn.innerHTML = `<img src="${currentUser.image}" alt="${currentUser.name}" class="w-full h-full object-cover rounded-xl" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-xl\\'>${currentUser.emoji}</span>'">`;
+      } else {
+        userAvatarBtn.innerHTML = `<span class="text-xl">${currentUser.emoji}</span>`;
+      }
+    }
+
+    // Utilities
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 7) return `${days}d ago`;
+      return date.toLocaleDateString();
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-purple-600';
+      toast.className = `px-6 py-3 rounded-xl ${bgColor} text-white font-medium shadow-2xl animate-slide-in`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        toast.style.transition = 'all 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Data SDK integration
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = data;
+        
+        if (!isDataReady) {
+          isDataReady = true;
+          setTimeout(() => seedMockData(), 500);
+        }
+
+        if (currentUser) {
+          const updatedProfile = getUserProfile(currentUser.id);
+          if (updatedProfile) {
+            currentUserProfile = updatedProfile;
+            currentUser.name = updatedProfile.userName;
+            currentUser.university = updatedProfile.university;
+            currentUser.course = updatedProfile.course;
+            currentUser.year = updatedProfile.year;
+            currentUser.image = updatedProfile.userImage;
+            currentUser.interests = updatedProfile.interests;
+            currentUser.bio = updatedProfile.bio;
+            currentUser.online = updatedProfile.online;
+          }
+        }
+
+        if (currentUser) {
+          const currentView = !document.getElementById('feed-view').classList.contains('hidden') ? 'feed' :
+                            !document.getElementById('discover-view').classList.contains('hidden') ? 'discover' :
+                            !document.getElementById('messages-view').classList.contains('hidden') ? 'messages' :
+                            !document.getElementById('profile-view').classList.contains('hidden') ? 'profile' : null;
+
+          if (currentView === 'feed') {
+            renderPosts();
+          } else if (currentView === 'discover') {
+            renderDiscoverProfiles();
+          } else if (currentView === 'messages') {
+            renderConversations();
+            if (currentChatUser) {
+              renderMessages();
+            }
+          } else if (currentView === 'profile') {
+            renderUserProfile();
+          }
+
+          updateSidebar();
+          renderNotifications();
+        }
+
+        updateLandingStats();
+      }
+    };
+
+    // Element SDK integration
+    async function onConfigChange(cfg) {
+      const font = cfg.font_family || defaultConfig.font_family;
+      const baseSize = cfg.font_size || defaultConfig.font_size;
+      const baseFontStack = 'Inter, sans-serif';
+      
+      document.body.style.fontFamily = `${font}, ${baseFontStack}`;
+      document.body.style.fontSize = `${baseSize}px`;
+
+      const taglineEl = document.getElementById('app-tagline');
+      if (taglineEl) {
+        const taglineText = cfg.app_tagline || defaultConfig.app_tagline;
+        taglineEl.innerHTML = taglineText.includes('Comrades') 
+          ? taglineText.replace('Comrades', '<span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-indigo-300">Comrades</span>')
+          : taglineText;
+      }
+
+      const welcomeEl = document.getElementById('welcome-message');
+      if (welcomeEl) {
+        welcomeEl.textContent = cfg.welcome_message || defaultConfig.welcome_message;
+      }
+
+      document.querySelectorAll('.font-display').forEach(el => {
+        el.style.fontFamily = `Poppins, ${font}, ${baseFontStack}`;
+      });
+    }
+
+    function mapToCapabilities(cfg) {
+      return {
+        recolorables: [
+          {
+            get: () => cfg.primary_color || defaultConfig.primary_color,
+            set: (v) => { cfg.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); }
+          },
+          {
+            get: () => cfg.secondary_color || defaultConfig.secondary_color,
+            set: (v) => { cfg.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); }
+          },
+          {
+            get: () => cfg.accent_color || defaultConfig.accent_color,
+            set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+          },
+          {
+            get: () => cfg.text_color || defaultConfig.text_color,
+            set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+          },
+          {
+            get: () => cfg.surface_color || defaultConfig.surface_color,
+            set: (v) => { cfg.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => cfg.font_family || defaultConfig.font_family,
+          set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+        },
+        fontSizeable: {
+          get: () => cfg.font_size || defaultConfig.font_size,
+          set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(cfg) {
+      return new Map([
+        ["app_tagline", cfg.app_tagline || defaultConfig.app_tagline],
+        ["welcome_message", cfg.welcome_message || defaultConfig.welcome_message]
+      ]);
+    }
+
+    // Initialize
+    async function init() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Failed to initialize Data SDK');
+        }
+      }
+
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities,
+          mapToEditPanelValues
+        });
+      } else {
+        onConfigChange(defaultConfig);
+      }
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bc6b458d75bea3c',t:'MTc2ODE1ODUyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
